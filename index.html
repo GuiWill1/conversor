@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Conversor de Terra Bacilândia</title>
+  <style>
+    :root{
+      --bg: #0b1410;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+
+      /* 🎨 Verde */
+      --accent: #22c55e;     /* verde principal */
+      --accent2: #16a34a;   /* verde mais escuro */
+      --danger: #ff4d6d;
+      --focus: 0 0 0 4px rgba(34,197,94,.28);
+    }
+
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #f3fbf6;
+        --card: rgba(255,255,255,.9);
+        --card2: rgba(255,255,255,.7);
+        --stroke: rgba(16,24,40,.12);
+        --text: rgba(16,24,40,.92);
+        --muted: rgba(16,24,40,.68);
+        --muted2: rgba(16,24,40,.55);
+        --shadow: 0 10px 28px rgba(16,24,40,.10);
+        --focus: 0 0 0 4px rgba(34,197,94,.22);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(34,197,94,.35), transparent 55%),
+        radial-gradient(800px 500px at 90% 15%, rgba(22,163,74,.25), transparent 55%),
+        radial-gradient(900px 600px at 50% 100%, rgba(34,197,94,.18), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrap{ max-width:1100px; margin:0 auto; padding:28px 18px 38px; }
+    header{ display:flex; gap:14px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+
+    .title{ display:flex; gap:14px; align-items:center; }
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: var(--shadow); display:grid; place-items:center;
+    }
+
+    h1{ margin:0; font-size:22px; letter-spacing:-.02em; }
+    .subtitle{ margin:6px 0 0; font-size:13px; color:var(--muted); max-width:720px; }
+
+    .pillbar{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pill{
+      border:1px solid var(--stroke); background:rgba(255,255,255,.06);
+      border-radius:999px; padding:8px 10px; font-size:12px; color:var(--muted);
+      backdrop-filter: blur(10px);
+    }
+    .pill b{ color:var(--text); }
+
+    .grid{ display:grid; gap:16px; grid-template-columns:1fr; margin-top:14px; }
+    @media (min-width:980px){ .grid{ grid-template-columns:1fr 1fr; } }
+
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--stroke); border-radius:18px; box-shadow:var(--shadow);
+      padding:16px; backdrop-filter: blur(14px); position:relative; overflow:hidden;
+    }
+    .card::before{
+      content:""; position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 220px at 0% 0%, rgba(34,197,94,.22), transparent 55%),
+        radial-gradient(600px 240px at 100% 0%, rgba(22,163,74,.18), transparent 60%);
+      opacity:.55; pointer-events:none;
+    }
+
+    .form{ display:grid; gap:12px; }
+    label{ font-size:12px; color:var(--muted); }
+    .input{
+      display:flex; align-items:center; border:1px solid var(--stroke);
+      border-radius:14px; overflow:hidden; background:rgba(0,0,0,.08);
+    }
+    .input:focus-within{ border-color: rgba(34,197,94,.6); box-shadow: var(--focus); }
+    .prefix{ padding:10px 12px; font-size:12px; color:var(--muted); border-right:1px solid var(--stroke); }
+    input{ width:100%; padding:12px; border:none; outline:none; background:transparent; color:var(--text); }
+
+    .row{ display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; }
+    button{
+      border:1px solid var(--stroke); background:rgba(255,255,255,.06);
+      color:var(--text); padding:11px 12px; border-radius:14px; cursor:pointer;
+    }
+    .primary{
+      border-color: rgba(34,197,94,.45);
+      background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(34,197,94,.08));
+    }
+
+    .out{ margin-top:12px; border:1px solid var(--stroke); border-radius:16px; padding:12px; }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:13px;
+      white-space: pre-line;
+    }
+
+    /* Copy / Toast */
+    .copyrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+    .copybtn{ font-size:12px; padding:9px 10px; border-radius:12px; }
+
+    /* This is the “Copiado ✅” label — hidden by default */
+    .toast{
+      font-size:12px;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateY(2px);
+      transition: opacity .15s ease, transform .15s ease;
+      pointer-events: none;
+    }
+    .toast.show{ opacity: 1; transform: translateY(0px); }
+
+    /* Optional: secondary button style used by "Limpar" */
+    .ghost{ background: rgba(255,255,255,.04); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 14c3.5 0 3.5-6 7-6s3.5 6 7 6 3.5-6 7-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 19c3.5 0 3.5-6 7-6s3.5 6 7 6 3.5-6 7-6" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Conversor de Terra - Bacilândia</h1>
+          <p class="subtitle">
+            Converte <b>hectares</b> ↔ <b>alqueire goiano</b> ↔ <b>litros</b>, no padrão:
+            <span class="mono">1 alq = 4,84 ha</span> e <span class="mono">1 alq = 80 litros</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="pillbar">
+        <div class="pill">1 alq <b>48.400 m²</b></div>
+        <div class="pill">1 litro <b>605 m²</b></div>
+        <div class="pill">1 litro <b>0,0605 ha</b></div>
+      </div>
+    </header>
+
+    <main class="grid">
+
+      <!-- Card 1 -->
+      <section class="card">
+        <div class="cardhead">
+          <div>
+            <h2>Hectares → Alqueire / Litros / m²</h2>
+            <div class="hint">Saída no estilo “escritura”: <span class="mono">X alq, Y litros e Z m²</span></div>
+          </div>
+        </div>
+
+        <div class="form">
+          <div class="field">
+            <label for="haIn">Hectares</label>
+            <div class="input">
+              <div class="prefix">ha</div>
+              <input id="haIn" type="number" inputmode="decimal" step="0.0001" placeholder="Ex.: 24.5161" />
+            </div>
+            <div class="tiny">Dica: você pode usar ponto ou vírgula. (O campo aceita números com ponto.)</div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="haConvert" type="button">Converter</button>
+            <button class="ghost" id="haClear" type="button">Limpar</button>
+          </div>
+
+          <div class="out" id="haOut" aria-live="polite">
+            <div class="mono">—</div>
+          </div>
+
+          <div class="copyrow">
+            <button class="copybtn" id="copyHa" type="button">Copiar resultado</button>
+            <span class="toast" id="toastHa">Copiado ✅</span>
+          </div>
+
+          <div class="kpis" id="kpisHa" style="display:none;">
+            <div class="kpi"><div class="k">Alqueire (decimal)</div><div class="v" id="kpiHaAlq">—</div></div>
+            <div class="kpi"><div class="k">Área total (m²)</div><div class="v" id="kpiHaM2">—</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2 -->
+      <section class="card">
+        <div class="cardhead">
+          <div>
+            <h2>Alqueire / Litros / m² → Hectares</h2>
+            <div class="hint">Ideal pra conferir valores da matrícula/escritura.</div>
+          </div>
+        </div>
+
+        <div class="form">
+          <div class="row">
+            <div class="field">
+              <label for="alqIn">Alqueires</label>
+              <div class="input">
+                <div class="prefix">alq</div>
+                <input id="alqIn" type="number" inputmode="numeric" step="1" min="0" placeholder="Ex.: 4" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="litIn">Litros</label>
+              <div class="input">
+                <div class="prefix">L</div>
+                <input id="litIn" type="number" inputmode="numeric" step="1" min="0" placeholder="Ex.: 51" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="m2In">Metros quadrados (m²)</label>
+            <div class="input">
+              <div class="prefix">m²</div>
+              <input id="m2In" type="number" inputmode="numeric" step="1" min="0" placeholder="Ex.: 99" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="alqConvert" type="button">Converter</button>
+            <button class="ghost" id="alqClear" type="button">Limpar</button>
+          </div>
+
+          <div class="warn" id="litWarn">
+            Observação: normalmente <b>80 litros = 1 alqueire</b>.
+            Se você digitar <b>litros ≥ 80</b>, o cálculo ainda funciona, mas faz sentido “carregar” isso para alqueires.
+          </div>
+
+          <div class="out" id="alqOut" aria-live="polite">
+            <div class="mono">—</div>
+          </div>
+
+          <div class="copyrow">
+            <button class="copybtn" id="copyAlq" type="button">Copiar resultado</button>
+            <span class="toast" id="toastAlq">Copiado ✅</span>
+          </div>
+
+          <div class="kpis" id="kpisAlq" style="display:none;">
+            <div class="kpi"><div class="k">Hectares</div><div class="v" id="kpiAlqHa">—</div></div>
+            <div class="kpi"><div class="k">Alqueire (decimal)</div><div class="v" id="kpiAlqDec">—</div></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <div class="footer">
+      Feito para o padrão GO: <span class="mono">1 alq = 4,84 ha</span> • <span class="mono">1 alq = 80 L</span> • <span class="mono">1 L = 0,0605 ha</span>.
+    </div>
+  </div>
+
+  <script>
+    // Constantes (padrão informado)
+    const HA_PER_ALQ = 4.84;
+    const LITERS_PER_ALQ = 80;
+    const M2_PER_HA = 10000;
+
+    const M2_PER_ALQ = HA_PER_ALQ * M2_PER_HA;         // 48.400 m²
+    const M2_PER_LITER = M2_PER_ALQ / LITERS_PER_ALQ;  // 605 m²
+    const HA_PER_LITER = HA_PER_ALQ / LITERS_PER_ALQ;  // 0,0605 ha
+
+    // Helpers
+    const $ = (id) => document.getElementById(id);
+
+    function parseNum(v){
+      if (v === "" || v === null || v === undefined) return NaN;
+      const s = String(v).trim().replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function fmt(n, digits = 6){
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR", { maximumFractionDigits: digits });
+    }
+
+    function floorSafe(n){
+      return Math.floor(n + 1e-10); // evita casos limite de ponto flutuante
+    }
+
+    function showToast(toastEl){
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 900);
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        return true;
+      }catch{
+        // fallback: cria textarea
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        ta.remove();
+        return ok;
+      }
+    }
+
+    // --- Hectares -> escritura ---
+    const haIn = $("haIn");
+    const haOut = $("haOut");
+    const kpisHa = $("kpisHa");
+    const kpiHaAlq = $("kpiHaAlq");
+    const kpiHaM2 = $("kpiHaM2");
+
+    function convertHa(){
+      const ha = parseNum(haIn.value);
+      if (!Number.isFinite(ha) || ha < 0){
+        haOut.innerHTML = `<div class="mono" style="color:var(--danger)">Informe um valor de hectares válido (≥ 0).</div>`;
+        kpisHa.style.display = "none";
+        return null;
+      }
+
+      const totalM2 = ha * M2_PER_HA;
+
+      const alq = floorSafe(totalM2 / M2_PER_ALQ);
+      let remM2 = totalM2 - alq * M2_PER_ALQ;
+
+      const liters = floorSafe(remM2 / M2_PER_LITER);
+      remM2 = remM2 - liters * M2_PER_LITER;
+
+      const m2 = Math.round(remM2);
+      const alqDec = totalM2 / M2_PER_ALQ;
+
+      const lines = [
+        `Decimal: ${fmt(alqDec, 6)} alq`,
+        `Escritura: ${alq} alq, ${liters} litros e ${fmt(m2, 0)} m²`,
+        `Total: ${fmt(totalM2, 0)} m²`,
+      ];
+
+      haOut.innerHTML = `<div class="mono">${lines.join("\n")}</div>`;
+
+      kpisHa.style.display = "grid";
+      kpiHaAlq.textContent = `${fmt(alqDec, 6)} alq`;
+      kpiHaM2.textContent = `${fmt(totalM2, 0)} m²`;
+
+      return { alqDec, alq, liters, m2, totalM2, ha, text: lines.join("\n") };
+    }
+
+    $("haConvert").addEventListener("click", convertHa);
+
+    $("haClear").addEventListener("click", () => {
+      haIn.value = "";
+      haOut.innerHTML = `<div class="mono">—</div>`;
+      kpisHa.style.display = "none";
+    });
+
+    // Enter para converter
+    haIn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") convertHa();
+    });
+
+    $("copyHa").addEventListener("click", async () => {
+      const res = convertHa();
+      if (!res) return;
+      const ok = await copyText(res.text);
+      if (ok) showToast($("toastHa"));
+    });
+
+    // --- Escritura -> hectares ---
+    const alqIn = $("alqIn");
+    const litIn = $("litIn");
+    const m2In = $("m2In");
+    const alqOut = $("alqOut");
+    const litWarn = $("litWarn");
+    const kpisAlq = $("kpisAlq");
+    const kpiAlqHa = $("kpiAlqHa");
+    const kpiAlqDec = $("kpiAlqDec");
+
+    function convertAlq(){
+      const alq = parseNum(alqIn.value || "0");
+      const liters = parseNum(litIn.value || "0");
+      const m2 = parseNum(m2In.value || "0");
+
+      if (![alq, liters, m2].every(Number.isFinite) || alq < 0 || liters < 0 || m2 < 0){
+        alqOut.innerHTML = `<div class="mono" style="color:var(--danger)">Preencha alqueires/litros/m² com valores válidos (≥ 0).</div>`;
+        kpisAlq.style.display = "none";
+        litWarn.style.display = "none";
+        return null;
+      }
+
+      litWarn.style.display = (liters >= LITERS_PER_ALQ) ? "block" : "none";
+
+      const totalM2 = (alq * M2_PER_ALQ) + (liters * M2_PER_LITER) + m2;
+      const ha = totalM2 / M2_PER_HA;
+      const alqDec = totalM2 / M2_PER_ALQ;
+
+      const lines = [
+        `Total: ${fmt(totalM2, 0)} m²`,
+        `Hectares: ${fmt(ha, 4)} ha`,
+        `Alqueire (decimal): ${fmt(alqDec, 6)} alq`,
+        `Referência: 1 litro = ${fmt(HA_PER_LITER, 4)} ha = ${fmt(M2_PER_LITER, 0)} m²`
+      ];
+
+      alqOut.innerHTML = `<div class="mono">${lines.join("\n")}</div>`;
+
+      kpisAlq.style.display = "grid";
+      kpiAlqHa.textContent = `${fmt(ha, 4)} ha`;
+      kpiAlqDec.textContent = `${fmt(alqDec, 6)} alq`;
+
+      return { totalM2, ha, alqDec, text: lines.join("\n") };
+    }
+
+    $("alqConvert").addEventListener("click", convertAlq);
+
+    $("alqClear").addEventListener("click", () => {
+      alqIn.value = "";
+      litIn.value = "";
+      m2In.value = "";
+      alqOut.innerHTML = `<div class="mono">—</div>`;
+      litWarn.style.display = "none";
+      kpisAlq.style.display = "none";
+    });
+
+    // Enter para converter (em qualquer campo)
+    [alqIn, litIn, m2In].forEach(el => {
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") convertAlq();
+      });
+    });
+
+    $("copyAlq").addEventListener("click", async () => {
+      const res = convertAlq();
+      if (!res) return;
+      const ok = await copyText(res.text);
+      if (ok) showToast($("toastAlq"));
+    });
+  </script>
+</body>
+</html>
